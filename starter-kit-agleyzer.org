@@ -1,0 +1,172 @@
+* My Config
+
+** Recommended crap
+
+#+begin_src emacs-lisp
+(starter-kit-load "misc-recommended")
+#+end_src
+
+** Miscellanea
+
+#+begin_src emacs-lisp
+
+;; this should have been loaded by SK
+(load custom-file 'noerror)
+
+(package-install 'undo-tree)
+(global-undo-tree-mode)
+
+(server-mode 1)
+
+;; this supposed to copy environment values from shell
+(package-install 'exec-path-from-shell)
+(when (memq window-system '(mac ns))
+  (exec-path-from-shell-initialize))
+
+(auto-revert-mode 1)
+
+;; if indent-tabs-mode is off, untabify before saving
+(add-hook 'write-file-hooks
+          (lambda () (if (not indent-tabs-mode)
+                         (untabify (point-min) (point-max)))
+                     (whitespace-cleanup)
+                      nil))
+
+#+end_src
+
+** UI Setup
+
+#+begin_src emacs-lisp
+;; command -/= to scale text
+(global-set-key (kbd "s--") 'text-scale-decrease)
+(global-set-key (kbd "s-=") 'text-scale-increase)
+(global-set-key (kbd "s-F") 'toggle-frame-fullscreen)
+(scroll-bar-mode -1)
+(load-theme 'misterioso-gleyzer)
+(fringe-mode 1)
+
+(package-install 'smart-mode-line)
+(sml/setup)
+
+#+end_src
+
+*** Font
+#+begin_src emacs-lisp
+(set-face-attribute 'default nil
+  :family "Source Code Pro"
+  :height 161
+  :weight 'normal)
+
+#+end_src
+
+*** Kill buffers
+
+#+begin_src emacs-lisp
+
+;; Kills all them buffers except scratch
+;; optained from http://www.chrislott.org/geek/emacs/dotemacs.html
+(defun ag-nuke-all-buffers ()
+  "kill all buffers, leaving *scratch* only"
+  (interactive)
+  (mapc (lambda (x) (kill-buffer x))
+          (buffer-list))
+  (delete-other-windows))
+
+(global-set-key [f5] 'ag-nuke-all-buffers)
+
+#+end_src
+
+*** My Shell
+
+#+begin_src emacs-lisp
+
+(defun ag-shell ()
+  (interactive)
+  (if (get-buffer "*shell*")
+      (switch-to-buffer-other-window "*shell*")
+    (delete-other-windows)
+    (split-window)
+    (other-window 1)
+    (shell)))
+
+(global-set-key "\M-s" 'ag-shell)
+(global-set-key [f3] 'ag-shell)
+
+#+end_src
+
+*** Misc Keyboard
+
+#+begin_src emacs-lisp
+
+(global-set-key "\M-g" 'goto-line)
+
+(global-set-key [C-tab] 'other-window)
+(global-set-key [home] 'beginning-of-line)
+(global-set-key [end] 'end-of-line)
+
+(global-set-key [f1] 'man)
+(global-set-key [f4] 'compile)
+(global-set-key [f6] (quote (lambda () (interactive) (compile "curl -v http://localhost:8080/adx/foo"))))
+
+(global-set-key [C-M-s-left] 'backward-mark)
+(global-set-key [C-M-s-right] 'forward-mark)
+
+(global-set-key [C-S-right] 'shift-right)
+(global-set-key [C-S-left] 'shift-left)
+
+(global-set-key (kbd "C-x g") 'magit-status)
+
+#+end_src
+** Deft
+
+#+begin_src emacs-lisp
+(package-install 'deft)
+(when (require 'deft nil) 'noerror
+  (setq
+   deft-extension "org"
+   deft-directory "~/Dropbox/orgfiles/"
+   deft-text-mode 'org-mode))
+(global-set-key [f2] 'deft)
+
+#+end_src
+
+** Scala
+
+#+begin_src emacs-lisp
+
+(package-install 'scala-mode2)
+(package-install 'flymake)
+(package-install 'key-chord)
+
+(add-to-list 'auto-mode-alist '("\\.scala$" . scala-mode))
+
+(defun ag-scala-mode-hook ()
+  (flymake-mode)
+  (add-hook 'before-save-hook 'whitespace-cleanup)
+  (local-set-key [f7] 'ensime-sbt-switch)
+  (local-set-key [S-f7] 'ensime-sbt-clear)
+  (local-set-key [f8] 'ensime-inf-switch)
+  (local-set-key [f4] 'ensime-inf-eval-region)
+  (local-set-key [S-f4] 'ensime-inf-eval-definition)
+
+  ;;(local-set-key (kbd "M-.") 'my-scala-find-tag)
+  (define-key ensime-mode-map (kbd "M-.") 'my-scala-find-tag)
+
+  (subword-mode +1)
+
+  (require 'key-chord)
+  (key-chord-mode +1)
+  (key-chord-define ensime-mode-map "ii" 'ensime-import-type-at-point)
+  (key-chord-define ensime-mode-map "II" 'ensime-refactor-organize-imports)
+  (key-chord-define ensime-mode-map "qq" 'ensime-inf-switch))
+
+(eval-after-load 'scala-mode2
+  '(progn
+     (message "scala-mode2 ftw")
+     (add-to-list 'load-path (expand-file-name "~/apps/ensime/elisp"))
+     (require 'ensime)
+     (add-hook 'scala-mode-hook 'ag-scala-mode-hook)
+     (add-hook 'scala-mode-hook 'ensime-scala-mode-hook)
+))
+
+#+end_src
