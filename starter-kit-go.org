@@ -1,0 +1,60 @@
+#+TITLE: Starter Kit Go
+#+OPTIONS: toc:nil num:nil ^:nil
+
+* Starter kit Go
+
+Support for the Go programming language.
+
+** Dependencies
+
+Determine whether required packages are installed. If not, use ELPA to
+install them.
+
+#+begin_src emacs-lisp
+(starter-kit-install-if-needed 'flycheck 'go-mode 'key-chord)
+#+end_src
+
+** Environment
+
+#+begin_src emacs-lisp
+
+(setenv "GOPATH" (expand-file-name "~/Projects/go"))
+
+(setenv "PATH" (concat (getenv "PATH") ":"
+                       (substitute-in-file-name "$GOPATH/bin")))
+
+(setq exec-path (append exec-path (list (substitute-in-file-name "$GOPATH/bin"))))
+
+#+end_src
+
+** Flymake/Flycheck
+
+#+begin_src emacs-lisp
+
+(add-to-list 'load-path
+             (substitute-in-file-name "$GOPATH/src/github.com/dougm/goflymake"))
+
+;; https://github.com/dougm/goflymake/issues/7
+(defcustom goflymake-debug nil
+  "Enable failure debugging mode in goflymake."
+  :type 'boolean
+  :group 'goflymake)
+
+(require 'go-flycheck)
+
+#+end_src
+
+** Hook
+
+#+begin_src emacs-lisp
+
+(add-hook 'go-mode-hook
+          (lambda ()
+            (require 'key-chord)
+            (setq tab-width 4)
+            (key-chord-mode +1)
+            (key-chord-define go-mode-map "ii" 'go-goto-imports)
+            (key-chord-define go-mode-map "jj" 'godef-jump)
+            (key-chord-define go-mode-map "dd" 'godef-describe)
+            (local-set-key (kbd "M-.") 'godef-jump)))
+#+end_src
