@@ -1,6 +1,7 @@
-* My Config
+* My Configuration
 
 ** Recommended crap
+
 
 #+begin_src emacs-lisp
 (starter-kit-load "misc-recommended")
@@ -36,6 +37,18 @@
 ;; helpful to restore window layout
 (winner-mode 1)
 
+;; helps dealing with read-only ensime-sbt... copied from help for
+;; comint-prompt-read-only
+(add-hook 'comint-mode-hook
+          (lambda ()
+            (define-key comint-mode-map "\C-w" 'comint-kill-region)
+            (define-key comint-mode-map [C-S-backspace]
+              'comint-kill-whole-line)))
+
+(add-to-list 'auto-mode-alist '("\\.zsh$" . sh-mode))
+
+(package-install 'ag)
+
 #+end_src
 
 ** UI Setup
@@ -51,6 +64,9 @@
 
 (package-install 'smart-mode-line)
 (sml/setup)
+
+(package-install 'projectile)
+(projectile-global-mode 1)
 
 #+end_src
 
@@ -84,16 +100,28 @@
 
 #+begin_src emacs-lisp
 
-(defun ag-shell ()
-  (interactive)
-  (if (get-buffer "*shell*")
-      (switch-to-buffer-other-window "*shell*")
-    (delete-other-windows)
-    (split-window)
-    (other-window 1)
-    (shell)))
+; (defun ag-shell ()
+;   (interactive)
+;   (if (get-buffer "*shell*")
+;       (switch-to-buffer-other-window "*shell*")
+;     (delete-other-windows)
+;     (split-window)
+;     (other-window 1)
+;     (shell)))
+;
+; (global-set-key "\M-s" 'ag-shell)
+; (global-set-key [f3] 'ag-shell)
 
-(global-set-key "\M-s" 'ag-shell)
+(defun ag-shell ()
+  "Create or visit a terminal buffer."
+  (interactive)
+  (if (not (get-buffer "*ansi-term*"))
+      (progn
+        (split-window-sensibly (selected-window))
+        (other-window 1)
+        (ansi-term (getenv "SHELL")))
+    (switch-to-buffer-other-window "*ansi-term*")))
+
 (global-set-key [f3] 'ag-shell)
 
 #+end_src
@@ -121,6 +149,63 @@
 (global-set-key (kbd "C-x g") 'magit-status)
 
 #+end_src
+*** Sr-speebar
+
+#+begin_src emacs-lisp
+(package-install 'sr-speedbar)
+
+(require 'sr-speedbar)
+
+(setq sr-speedbar-width 30)
+
+;; show all files
+(setq speedbar-show-unknown-files t)
+
+;; turn off the ugly icons
+(setq speedbar-use-images nil)
+
+;; left-side pane
+(setq sr-speedbar-right-side nil)
+
+;; don't refresh on buffer changes
+(setq sr-speedbar-auto-refresh nil)
+
+(setq sr-speedbar-skip-other-window-p t)
+
+;; make speedbar text smaller
+(setq speedbar-mode-hook
+      '(lambda ()
+         (progn
+           (message "whoa")
+           (text-scale-decrease 2))))
+
+(global-set-key [s-f12] 'sr-speedbar-toggle)
+
+#+end_src
+
+**** Temporary ad-advised-definition-p workaround
+
+These were removed from emacs 24.4 but sr-speedbar requires
+ad-advised-definition-p.
+
+#+begin_src emacs-lisp
+
+(defmacro ad-macro-p (definition)
+  ;;"non-nil if DEFINITION is a macro."
+  (` (eq (car-safe (, definition)) 'macro)))
+
+(defun ad-advised-definition-p (definition)
+  ;;"non-nil if DEFINITION was generated from advice information."
+  (if (or (ad-lambda-p definition)
+          (ad-macro-p definition)
+          (ad-compiled-p definition))
+      (let ((docstring (ad-docstring definition)))
+        (and (stringp docstring)
+             (string-match
+              ad-advised-definition-docstring-regexp docstring)))))
+
+#+end_src
+
 ** Deft
 
 #+begin_src emacs-lisp
@@ -141,6 +226,7 @@
 (package-install 'scala-mode2)
 (package-install 'flymake)
 (package-install 'key-chord)
+(package-install 'sbt-mode)
 
 (add-to-list 'auto-mode-alist '("\\.scala$" . scala-mode))
 
@@ -174,3 +260,4 @@
 ))
 
 #+end_src
+
