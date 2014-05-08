@@ -2,13 +2,12 @@
 
 ** Recommended crap
 
-
 #+begin_src emacs-lisp
 (starter-kit-load "misc-recommended")
 (starter-kit-load "go")
 #+end_src
 
-** Miscellanea
+** Miscelanea
 
 #+begin_src emacs-lisp
 
@@ -49,9 +48,12 @@
 
 (package-install 'ag)
 
+(setq locate-command "mdfind")
+
 #+end_src
 
 ** UI Setup
+*** Misc UI
 
 #+begin_src emacs-lisp
 ;; command -/= to scale text
@@ -71,6 +73,7 @@
 #+end_src
 
 *** Font
+
 #+begin_src emacs-lisp
 (set-face-attribute 'default nil
   :family "Source Code Pro"
@@ -150,6 +153,30 @@
 
 #+end_src
 *** Sr-speebar
+**** Temporary ad-advised-definition-p workaround
+
+These were removed from emacs 24.4 but sr-speedbar requires
+ad-advised-definition-p.
+
+#+begin_src emacs-lisp
+
+(defmacro ad-macro-p (definition)
+  ;;"non-nil if DEFINITION is a macro."
+  (` (eq (car-safe (, definition)) 'macro)))
+
+(defun ad-advised-definition-p (definition)
+  ;;"non-nil if DEFINITION was generated from advice information."
+  (if (or (ad-lambda-p definition)
+          (ad-macro-p definition)
+          (ad-compiled-p definition))
+      (let ((docstring (ad-docstring definition)))
+        (and (stringp docstring)
+             (string-match
+              ad-advised-definition-docstring-regexp docstring)))))
+
+#+end_src
+
+**** Speedbar
 
 #+begin_src emacs-lisp
 (package-install 'sr-speedbar)
@@ -179,30 +206,15 @@
            (message "whoa")
            (text-scale-decrease 2))))
 
+(setq speedbar-use-imenu-flag nil)
+
+(setq speedbar-fetch-etags-command "ctags")
+
+(setq speedbar-fetch-etags-arguments '("-e" "-f" "-"))
+
 (global-set-key [s-f12] 'sr-speedbar-toggle)
 
-#+end_src
-
-**** Temporary ad-advised-definition-p workaround
-
-These were removed from emacs 24.4 but sr-speedbar requires
-ad-advised-definition-p.
-
-#+begin_src emacs-lisp
-
-(defmacro ad-macro-p (definition)
-  ;;"non-nil if DEFINITION is a macro."
-  (` (eq (car-safe (, definition)) 'macro)))
-
-(defun ad-advised-definition-p (definition)
-  ;;"non-nil if DEFINITION was generated from advice information."
-  (if (or (ad-lambda-p definition)
-          (ad-macro-p definition)
-          (ad-compiled-p definition))
-      (let ((docstring (ad-docstring definition)))
-        (and (stringp docstring)
-             (string-match
-              ad-advised-definition-docstring-regexp docstring)))))
+(speedbar-add-supported-extension ".sh")
 
 #+end_src
 
@@ -258,6 +270,11 @@ ad-advised-definition-p.
      (add-hook 'scala-mode-hook 'ag-scala-mode-hook)
      (add-hook 'scala-mode-hook 'ensime-scala-mode-hook)
 ))
+
+(speedbar-add-supported-extension ".scala")
+
+(add-to-list 'speedbar-fetch-etags-parse-list
+    '("\\.scala" . speedbar-parse-c-or-c++tag))
 
 #+end_src
 

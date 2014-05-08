@@ -57,4 +57,16 @@ install them.
             (key-chord-define go-mode-map "jj" 'godef-jump)
             (key-chord-define go-mode-map "dd" 'godef-describe)
             (local-set-key (kbd "M-.") 'godef-jump)))
+
+#+end_src
+
+** Speedbar support
+
+#+begin_src emacs-lisp
+
+(speedbar-add-supported-extension ".go")
+
+;; (add-to-list 'speedbar-fetch-etags-parse-list
+;;    '("\\.go" . speedbar-parse-c-or-c++tag))
+
 #+end_src
