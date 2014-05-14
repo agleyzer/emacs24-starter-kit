@@ -7,9 +7,12 @@
 (starter-kit-load "go")
 #+end_src
 
-** Miscelanea
+** Miscellanea
 
 #+begin_src emacs-lisp
+
+;; disable bell
+(setq ring-bell-function 'ignore)
 
 ;; this should have been loaded by SK
 (load custom-file 'noerror)

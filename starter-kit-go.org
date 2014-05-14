@@ -44,13 +44,16 @@ install them.
 
 #+end_src
 
-** Hook
+** Hooks
 
 #+begin_src emacs-lisp
+
+(add-hook 'before-save-hook 'gofmt-before-save)
 
 (add-hook 'go-mode-hook
           (lambda ()
             (require 'key-chord)
+            (flycheck-mode 1)
             (setq tab-width 4)
             (key-chord-mode +1)
             (key-chord-define go-mode-map "ii" 'go-goto-imports)
@@ -63,8 +66,8 @@ install them.
 ** Speedbar support
 
 #+begin_src emacs-lisp
-
-(speedbar-add-supported-extension ".go")
+(when (require 'speedbar)
+   (speedbar-add-supported-extension ".go"))
 
 ;; (add-to-list 'speedbar-fetch-etags-parse-list
 ;;    '("\\.go" . speedbar-parse-c-or-c++tag))
