@@ -11,7 +11,7 @@ Determine whether required packages are installed. If not, use ELPA to
 install them.
 
 #+begin_src emacs-lisp
-(starter-kit-install-if-needed 'flycheck 'go-mode 'key-chord)
+(starter-kit-install-if-needed 'flycheck 'go-mode 'key-chord 'yasnippet 'company)
 #+end_src
 
 ** Environment
@@ -21,9 +21,11 @@ install them.
 (setenv "GOPATH" (expand-file-name "~/Projects/go"))
 
 (setenv "PATH" (concat (getenv "PATH") ":"
-                       (substitute-in-file-name "$GOPATH/bin")))
+                       (substitute-in-file-name "$GOPATH/bin") ":"
+                        "/usr/local/opt/go/libexec/bin"))
 
-(setq exec-path (append exec-path (list (substitute-in-file-name "$GOPATH/bin"))))
+(setq exec-path (append exec-path (list
+  (substitute-in-file-name "$GOPATH/bin") "/usr/local/opt/go/libexec/bin")))
 
 #+end_src
 
@@ -73,3 +75,22 @@ install them.
 ;;    '("\\.go" . speedbar-parse-c-or-c++tag))
 
 #+end_src
+** Auto complete
+#+begin_src emacs-lisp
+
+(add-to-list 'load-path
+             (substitute-in-file-name "$GOPATH/src/github.com/nsf/gocode/emacs-company"))
+
+(require 'company)                                   ; load company mode
+(require 'company-go)                                ; load company mode go backend
+
+(setq company-tooltip-limit 20)                      ; bigger popup window
+(setq company-idle-delay .3)                         ; decrease delay before autocompletion popup shows
+(setq company-echo-delay 0)                          ; remove annoying blinking
+(setq company-begin-commands '(self-insert-command)) ; start autocompletion only after typing
+
+(add-hook 'go-mode-hook (lambda ()
+                          (set (make-local-variable 'company-backends) '(company-go))
+                          (company-mode)))
+#+end_src
+

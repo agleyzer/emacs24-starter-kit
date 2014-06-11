@@ -1,5 +1,6 @@
-** Recommended crap
+** NYT-local
 
 #+begin_src emacs-lisp
 (starter-kit-load "agleyzer")
+(starter-kit-load "go")
 #+end_src
