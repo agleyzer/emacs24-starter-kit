@@ -4,6 +4,9 @@
 
 #+begin_src emacs-lisp
 (starter-kit-load "misc-recommended")
+
+;; make IDO guess file name, default setting sucks
+(setq ido-use-filename-at-point 'guess)
 #+end_src
 
 ** Miscellanea
@@ -206,7 +209,8 @@ ad-advised-definition-p.
       '(lambda ()
          (progn
            (message "whoa")
-           (text-scale-decrease 2))))
+           (text-scale-decrease 2)
+           (setq truncate-lines nil))))
 
 (setq speedbar-use-imenu-flag nil)
 
@@ -237,7 +241,7 @@ ad-advised-definition-p.
 
 #+begin_src emacs-lisp
 (savehist-mode 1)
-#+end_src emacs-lisp
+#+end_src
 
 ** Scala
 
@@ -260,9 +264,13 @@ ad-advised-definition-p.
   (local-set-key [S-f4] 'ensime-inf-eval-definition)
 
   ;;(local-set-key (kbd "M-.") 'my-scala-find-tag)
-  (define-key ensime-mode-map (kbd "M-.") 'my-scala-find-tag)
+  ;;(define-key ensime-mode-map (kbd "M-.") 'my-scala-find-tag)
+
+  ;; default 't prevents ~ commands from running continuously
+  (setq ensime-sbt-compile-on-save nil)
 
   (subword-mode +1)
+  (auto-revert-mode +1)
 
   (require 'key-chord)
   (key-chord-mode +1)
@@ -285,4 +293,5 @@ ad-advised-definition-p.
     '("\\.scala" . speedbar-parse-c-or-c++tag))
 
 #+end_src
+
 
