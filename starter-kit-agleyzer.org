@@ -257,14 +257,12 @@ ad-advised-definition-p.
 (defun ag-scala-mode-hook ()
   (flymake-mode)
   (add-hook 'before-save-hook 'whitespace-cleanup)
+
   (local-set-key [f7] 'ensime-sbt-switch)
   (local-set-key [S-f7] 'ensime-sbt-clear)
   (local-set-key [f8] 'ensime-inf-switch)
   (local-set-key [f4] 'ensime-inf-eval-region)
   (local-set-key [S-f4] 'ensime-inf-eval-definition)
-
-  ;;(local-set-key (kbd "M-.") 'my-scala-find-tag)
-  ;;(define-key ensime-mode-map (kbd "M-.") 'my-scala-find-tag)
 
   ;; default 't prevents ~ commands from running continuously
   (setq ensime-sbt-compile-on-save nil)
@@ -280,8 +278,7 @@ ad-advised-definition-p.
 
 (eval-after-load 'scala-mode2
   '(progn
-     (message "scala-mode2 ftw")
-     (add-to-list 'load-path (expand-file-name "~/apps/ensime/elisp"))
+     (add-to-list 'load-path (expand-file-name "~/apps/ensime"))
      (require 'ensime)
      (add-hook 'scala-mode-hook 'ag-scala-mode-hook)
      (add-hook 'scala-mode-hook 'ensime-scala-mode-hook)
@@ -293,5 +290,6 @@ ad-advised-definition-p.
     '("\\.scala" . speedbar-parse-c-or-c++tag))
 
 #+end_src
+
 
 
